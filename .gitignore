@@ -3,3 +3,5 @@ node_modules
 
 # Logs
 debug.log
+
+config-local.json
