@@ -6,12 +6,11 @@ var logger = require('../logger');
 
 // Connect to the database
 // construct the database URI and encode username and password.
-mongodb + srv: //root:<password>@cluster0-ovbcm.gcp.mongodb.net/test
-	var dbURI = "mongodb+srv://" +
-		encodeURIComponent(config.db.username) + ":" +
-		encodeURIComponent(config.db.password) + "@" +
-		config.db.host +
-		"?retryWrites=true&w=majority";
+var dbURI = "mongodb+srv://" +
+	encodeURIComponent(config.db.username) + ":" +
+	encodeURIComponent(config.db.password) + "@" +
+	config.db.host +
+	"?retryWrites=true&w=majority";
 Mongoose.connect(dbURI, {
 	useNewUrlParser: true
 });
