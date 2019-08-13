@@ -1,6 +1,6 @@
 'use strict';
 
-var Mongoose  = require('mongoose');
+var Mongoose = require('mongoose');
 
 /**
  * Each connection object represents a user connected through a unique socket.
@@ -8,8 +8,21 @@ var Mongoose  = require('mongoose');
  *
  */
 var RoomSchema = new Mongoose.Schema({
-    title: { type: String, required: true },
-    connections: { type: [{ userId: String, socketId: String }]}
+    title: {
+        type: String,
+        required: true
+    },
+    messages: {
+        type: [{
+            messageId: String
+        }]
+    },
+    connections: {
+        type: [{
+            userId: String,
+            socketId: String
+        }]
+    }
 });
 
 var roomModel = Mongoose.model('room', RoomSchema);

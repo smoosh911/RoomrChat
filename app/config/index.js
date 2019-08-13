@@ -26,6 +26,10 @@ var init = function () {
 				callbackURL: "/auth/twitter/callback",
 				profileFields: ['id', 'displayName', 'photos']
 			},
+			twilio: {
+				accountSid: process.env.accountSid,
+				authToken: process.env.authToken
+			},
 			redis: {
 				host: redisURI.hostname,
 				port: redisURI.port,

@@ -1,5 +1,6 @@
 'use strict';
 
+var config = require('../config');
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
@@ -67,6 +68,25 @@ router.post('/register', function (req, res, next) {
 router.post('/lead', function (req, res, next) {
 	console.log('req :', req);
 	console.log('res :', res);
+	const {
+		From,
+		Body,
+		sendToAgent,
+		chatFlow
+	} = req.body;
+	if (User.findById()) {
+		throw new Error("sendToAgent not true");
+	}
+	const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
+	const leesPhone = "9288216645";
+	const mikesPhone = "2086951457";
+	const twilioPhone = '+12085041779';
+	client.messages.create({
+		body: `From: ${From}\nMessage: ${Body}\nAgent Chat: http://chat.roomr.io\nTwilio Logs: https://www.twilio.com/console/studio/flows/FWafb5b1354d5ea598afba40a74c4548a5/executions"`,
+		from: twilioPhone,
+		to: mikesPhone
+	}).then(message => console.log(message));
+
 });
 
 // Social Authentication routes

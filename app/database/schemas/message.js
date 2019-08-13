@@ -8,18 +8,24 @@ var Mongoose = require('mongoose');
  *
  */
 var MessageSchema = new Mongoose.Schema({
-    text: {
+    content: {
         type: String,
         required: true
     },
-    connections: {
-        type: [{
-            userId: String,
-            socketId: String
-        }]
+    dateCreated: {
+        type: Date,
+        required: true
+    },
+    userId: {
+        type: String,
+        required: true
+    },
+    roomId: {
+        type: String,
+        required: true
     }
 });
 
-var roomModel = Mongoose.model('room', RoomSchema);
+var messageModel = Mongoose.model('message', MessageSchema);
 
-module.exports = roomModel;
+module.exports = messageModel;
