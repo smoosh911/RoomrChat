@@ -47,11 +47,11 @@ var app = {
 
       socket.emit('join', roomId);
 
-      socket.on('loadMessageList', function (messages) {
+      socket.on('updateMessageList', function (messages) {
         if (messages.error != null) {
           $('.container').html(`<p class="message error">${users.error}</p>`);
         } else {
-          app.helpers.loadMessageList(message)
+          app.helpers.loadMessageList(messages)
         }
       });
 
@@ -152,10 +152,21 @@ var app = {
       this.updateNumOfUsers();
     },
 
+    loadMessageList: function (messages) {
+      messages.forEach(message => {
+        this.addMessage(message, false);
+      });
+      setTimeout(() => {
+        $(".chat-history").animate({
+          scrollTop: $('.chat-history')[0].scrollHeight
+        }, 500);
+      }, 500);
+    },
+
     // Adding a new message to chat history
-    addMessage: function (message) {
-      message.date = (new Date(message.date)).toLocaleString();
-      message.username = this.encodeHTML(message.username);
+    addMessage: function (message, scroll = true) {
+      message.date = message.date ? (new Date(message.date)).toLocaleString() : (new Date(message.dateCreated)).toLocaleString();
+      message.username = message.username ? this.encodeHTML(message.username) : this.encodeHTML(message.userId);
       message.content = this.encodeHTML(message.content);
 
       var html = `<li>
@@ -168,9 +179,11 @@ var app = {
       $(html).hide().appendTo('.chat-history ul').slideDown(200);
 
       // Keep scroll bar down
-      $(".chat-history").animate({
-        scrollTop: $('.chat-history')[0].scrollHeight
-      }, 1000);
+      if (scroll) {
+        $(".chat-history").animate({
+          scrollTop: $('.chat-history')[0].scrollHeight
+        }, 200);
+      }
     },
 
     // Update number of rooms

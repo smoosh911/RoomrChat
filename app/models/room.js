@@ -92,21 +92,11 @@ var getUsers = function (room, socket, callback) {
 
 var getMessages = function (room, socket, callback) {
 
-	const messages = room.messages;
-
-	var loadedMessages = 0;
-	messages.forEach(function (messageId, i) {
-		Message.findById(messageId, function (err, message) {
-			if (err) {
-				return callback(err);
-			}
-			messages[i] = message;
-
-			// fire callback when all users are loaded (async) from database 
-			if (++loadedMessages === messages.length) {
-				return callback(null, messages);
-			}
-		});
+	Message.find({
+		roomId: room.id
+	}, (err, messages) => {
+		if (err) throw err;
+		return callback(null, messages);
 	});
 }
 
@@ -162,5 +152,6 @@ module.exports = {
 	findById,
 	addUser,
 	getUsers,
-	removeUser
+	removeUser,
+	getMessages
 };

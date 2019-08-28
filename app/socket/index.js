@@ -75,6 +75,10 @@ var ioEvents = function (io) {
 								socket.broadcast.to(newRoom.id).emit('updateUsersList', users[users.length - 1]);
 							}
 						});
+						Room.getMessages(room, socket, function (err, messages) {
+							if (err) throw err;
+							socket.emit('updateMessageList', messages, true);
+						});
 					});
 				}
 			});
@@ -109,7 +113,7 @@ var ioEvents = function (io) {
 			Message.create({
 				content: message.content,
 				dateCreated: message.date,
-				userId: message.username,
+				userId: message.userId ? message.userId : socket.request.session.passport.user,
 				roomId: roomId
 			}, function (err, newMessage) {
 				if (err) throw err;
@@ -162,7 +166,10 @@ var init = function (app) {
 	ioEvents(io);
 
 	// The server object will be then used to list to a port number
-	return server;
+	return {
+		server,
+		io
+	};
 }
 
 module.exports = init;
