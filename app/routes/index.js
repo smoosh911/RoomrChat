@@ -82,7 +82,7 @@ var init = function (io) {
 	}
 
 	// Twilio APIs
-	router.post('/lead', async function (req, res, next) {
+	router.post('/lead', function (req, res, next) {
 		const {
 			From,
 			Body,
@@ -118,6 +118,16 @@ var init = function (io) {
 					if (room) {
 						if (sendToAgent) {
 							initialAgentText(From, Body, user, room);
+							Message.create({
+								content: chatFlow,
+								dateCreated: Date.now(),
+								userId: user.id,
+								roomId: room.id
+							}, function (err, message) {
+								if (err) throw err;
+								io.of('/rooms').emit('updateRoomsList', room);
+								res.status(200).end();
+							});
 						}
 						Message.create({
 							content: Body,
@@ -138,6 +148,16 @@ var init = function (io) {
 							if (err) throw err;
 							if (sendToAgent) {
 								initialAgentText(From, Body, user, room);
+								Message.create({
+									content: chatFlow,
+									dateCreated: Date.now(),
+									userId: user.id,
+									roomId: room.id
+								}, function (err, message) {
+									if (err) throw err;
+									io.of('/rooms').emit('updateRoomsList', room);
+									res.status(200).end();
+								});
 							}
 							Message.create({
 								content: Body,
