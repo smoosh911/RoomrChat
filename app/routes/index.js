@@ -66,62 +66,79 @@ var init = function (io) {
 		}
 	});
 
+	function initialAgentText(From, Body, user, room) {
+		user.sendToAgent = true
+		user.save()
+		const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
+		const leesPhone = "9288216645";
+		const mikesPhone = "2086951457";
+		const twilioPhone = '+12085041779';
+		client.messages.create({
+			body: `From: ${From}\nMessage: ${Body}\nAgent Chat: http://chat.roomr.io/chat/${room.id}\nTwilio Logs: https://www.twilio.com/console/studio/flows/FWafb5b1354d5ea598afba40a74c4548a5/executions"`,
+			from: twilioPhone,
+			to: mikesPhone
+		}).then(message => console.log(message));
+
+	}
+
 	// Twilio APIs
-	router.post('/lead', function (req, res, next) {
+	router.post('/lead', async function (req, res, next) {
 		const {
 			From,
 			Body,
 			sendToAgent,
 			chatFlow
 		} = req.body;
-		if (User.findById()) {
-			throw new Error("sendToAgent not true");
-		}
-		const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
-		const leesPhone = "9288216645";
-		const mikesPhone = "2086951457";
-		const twilioPhone = '+12085041779';
-		// client.messages.create({
-		// 	body: `From: ${From}\nMessage: ${Body}\nAgent Chat: http://chat.roomr.io\nTwilio Logs: https://www.twilio.com/console/studio/flows/FWafb5b1354d5ea598afba40a74c4548a5/executions"`,
-		// 	from: twilioPhone,
-		// 	to: mikesPhone
-		// }).then(message => console.log(message));
 
 		User.findOne({
 			'phone': From
-		}, function (err, user) {
+		}, (err, user) => {
 			if (err) throw err;
-			if (user) {
-
-				// } else {
-				// User.create({
-				// 	'phone': From
-				// }, function (err, user) {
-				if (err) throw err;
+			if (!user) {
+				User.create({
+					'phone': From,
+					'sendToAgent': false
+				}, function (err, newUser) {
+					if (err) throw err;
+					user = newUser
+				})
+				res.send(500, {
+					message: "sendToAgent false"
+				});
+			}
+			if (!user.sendToAgent && !sendToAgent) {
+				res.send(500, {
+					message: "sendToAgent false"
+				});
+			} else {
 				Room.findOne({
 					'title': From
 				}, function (err, room) {
 					if (err) throw err;
 					if (room) {
-						req.flash('error', 'Room already exists.');
-						var message = {
+						if (sendToAgent) {
+							initialAgentText(From, Body, user, room);
+						}
+						Message.create({
 							content: Body,
 							dateCreated: Date.now(),
-							userId: user.id
-						}
-						io.of('/chatroom').on('connection', function (socket) {
-							// socket.emit('join', room.id);
-							socket.broadcast.to(room.id).emit('addMessage', message);
+							userId: user.id,
+							roomId: room.id
+						}, function (err, message) {
+							if (err) throw err;
+							io.of('/rooms').emit('updateRoomsList', room);
+							res.status(200).end();
 						});
-						res.end();
 					} else {
 						Room.create({
 							'title': From,
+							'userId': user.id,
 							'messages': []
 						}, function (err, room) {
 							if (err) throw err;
-							req.flash('success', 'New room has been created');
-
+							if (sendToAgent) {
+								initialAgentText(From, Body, user, room);
+							}
 							Message.create({
 								content: Body,
 								dateCreated: Date.now(),
@@ -129,15 +146,14 @@ var init = function (io) {
 								roomId: room.id
 							}, function (err, message) {
 								if (err) throw err;
-								// socket.broadcast.to(roomId).emit('addMessage', message);
 								io.of('/rooms').emit('updateRoomsList', room);
+								res.status(200).end();
 							});
 						});
 					}
 				});
-				// })
 			};
-		});
+		})
 	});
 
 	// Social Authentication routes

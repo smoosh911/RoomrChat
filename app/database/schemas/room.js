@@ -17,6 +17,10 @@ var RoomSchema = new Mongoose.Schema({
             messageId: String
         }]
     },
+    userId: {
+        type: String,
+        required: true
+    },
     connections: {
         type: [{
             userId: String,
