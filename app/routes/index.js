@@ -12,7 +12,7 @@ var Message = require('../models/message');
 var init = function (io) {
 
 	router.use(function (req, res, next) {
-		res.header("Access-Control-Allow-Origin", "https://www.twilio.com"); // update to match the domain you will make the request from
+		res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
 		res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 		next();
 	});
@@ -133,7 +133,6 @@ var init = function (io) {
 							}, function (err, message) {
 								if (err) throw err;
 								io.of('/rooms').emit('updateRoomsList', room);
-								res.status(200).end();
 							});
 						}
 						Message.create({
@@ -163,7 +162,6 @@ var init = function (io) {
 								}, function (err, message) {
 									if (err) throw err;
 									io.of('/rooms').emit('updateRoomsList', room);
-									res.status(200).end();
 								});
 							}
 							Message.create({
