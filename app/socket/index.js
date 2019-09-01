@@ -123,7 +123,9 @@ var ioEvents = function (io) {
 				// socket.emit('addMessage', message);
 				Room.findById(roomId, (err, room) => {
 					if (err) throw err;
-					text(room.title, message.content)
+					if (room.userId) {
+						text(room.title, message.content)
+					}
 				});
 				socket.broadcast.to(roomId).emit('addMessage', message);
 			});
