@@ -29,7 +29,7 @@ var ioEvents = function (io) {
 				} else {
 					Room.create({
 						title: title,
-						userId: userId ? userId : 1,
+						userId: userId ? userId : null,
 					}, function (err, newRoom) {
 						if (err) throw err;
 						socket.emit('updateRoomsList', newRoom);
@@ -121,11 +121,25 @@ var ioEvents = function (io) {
 				// No need to emit 'addMessage' to the current socket
 				// As the new message will be added manually in 'main.js' file
 				// socket.emit('addMessage', message);
+				Room.findById(roomId, (err, room) => {
+					if (err) throw err;
+					text(room.title, message.content)
+				});
 				socket.broadcast.to(roomId).emit('addMessage', message);
 			});
 
 		});
 
+		function text(To, Body) {
+			const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
+			const twilioPhone = '+12085041779';
+			client.messages.create({
+				body: Body,
+				from: twilioPhone,
+				to: To
+			}).then(message => console.log(message));
+
+		}
 	});
 }
 
