@@ -13,7 +13,6 @@ var app = {
 
       // Update rooms list upon emitting updateRoomsList event
       socket.on('updateRoomsList', function (room) {
-
         // Display an error message upon a user error(i.e. creating a room with an existing title)
         $('.room-create p.message').remove();
         if (room.error != null) {
@@ -25,6 +24,7 @@ var app = {
 
       // Whenever the user hits the create button, emit createRoom event.
       $('.room-create button').on('click', function (e) {
+        console.log('socket :', socket);
         var inputEle = $("input[name='title']");
         var roomTitle = inputEle.val().trim();
         if (roomTitle !== '') {
@@ -44,10 +44,11 @@ var app = {
 
     // When socket connects, join the current chatroom
     socket.on('connect', function () {
-
+      console.log('roomId :', roomId);
       socket.emit('join', roomId);
 
       socket.on('updateMessageList', function (messages) {
+        console.log('message :', messages);
         if (messages.error != null) {
           $('.container').html(`<p class="message error">${users.error}</p>`);
         } else {

@@ -96,7 +96,6 @@ var init = function (io) {
 			sendToAgent,
 			chatFlow
 		} = req.body;
-
 		User.findOne({
 			'phone': From
 		}, (err, user) => {
@@ -118,6 +117,32 @@ var init = function (io) {
 					message: "sendToAgent false"
 				});
 			} else {
+				// io.of('/rooms').emit('createRoom', From, user.id);
+				// io.of('/rooms').on('updateRoomsList', function (room) {
+				// 	if (sendToAgent) {
+				// 		initialAgentText(From, Body, user, room);
+				// 		Message.create({
+				// 			content: chatFlow,
+				// 			dateCreated: Date.now(),
+				// 			userId: user.id,
+				// 			roomId: room.id
+				// 		}, function (err, message) {
+				// 			if (err) throw err;
+				// 			io.of('/chatroom').to(room.id).emit('addMessage', message);
+				// 		});
+				// 	}
+				// 	Message.create({
+				// 		content: Body,
+				// 		dateCreated: Date.now(),
+				// 		userId: user.id,
+				// 		roomId: room.id
+				// 	}, function (err, message) {
+				// 		if (err) throw err;
+				// 		console.log('room.id :', room.id);
+				// 		io.of('/chatroom').to(room.id).emit('addMessage', message);
+				// 		res.status(200).end();
+				// 	});
+				// });
 				Room.findOne({
 					'title': From
 				}, function (err, room) {
@@ -132,7 +157,7 @@ var init = function (io) {
 								roomId: room.id
 							}, function (err, message) {
 								if (err) throw err;
-								io.of('/rooms').emit('updateRoomsList', room);
+								io.of('/chatroom').to(room.id).emit('addMessage', message);
 							});
 						}
 						Message.create({
@@ -142,7 +167,8 @@ var init = function (io) {
 							roomId: room.id
 						}, function (err, message) {
 							if (err) throw err;
-							io.of('/rooms').emit('updateRoomsList', room);
+							console.log('room.id :', room.id);
+							io.of('/chatroom').to(room.id).emit('addMessage', message);
 							res.status(200).end();
 						});
 					} else {
@@ -152,6 +178,7 @@ var init = function (io) {
 							'messages': []
 						}, function (err, room) {
 							if (err) throw err;
+							io.of('/rooms').emit('updateRoomsList', room);
 							if (sendToAgent) {
 								initialAgentText(From, Body, user, room);
 								Message.create({
@@ -161,7 +188,7 @@ var init = function (io) {
 									roomId: room.id
 								}, function (err, message) {
 									if (err) throw err;
-									io.of('/rooms').emit('updateRoomsList', room);
+									io.of('/chatroom').to(room.id).emit('addMessage', message);
 								});
 							}
 							Message.create({
@@ -171,13 +198,13 @@ var init = function (io) {
 								roomId: room.id
 							}, function (err, message) {
 								if (err) throw err;
-								io.of('/rooms').emit('updateRoomsList', room);
+								io.of('/chatroom').to(room.id).emit('addMessage', message);
 								res.status(200).end();
 							});
 						});
 					}
 				});
-			};
+			}
 		})
 	});
 

@@ -17,7 +17,8 @@ var ioEvents = function (io) {
 	io.of('/rooms').on('connection', function (socket) {
 
 		// Create a new room
-		socket.on('createRoom', function (title) {
+		socket.on('createRoom', function (title, userId) {
+			console.log('title :', title);
 			Room.findOne({
 				'title': new RegExp('^' + title + '$', 'i')
 			}, function (err, room) {
@@ -28,7 +29,8 @@ var ioEvents = function (io) {
 					});
 				} else {
 					Room.create({
-						title: title
+						title: title,
+						userId: userId ? userId : null,
 					}, function (err, newRoom) {
 						if (err) throw err;
 						socket.emit('updateRoomsList', newRoom);
