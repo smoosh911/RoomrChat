@@ -73,23 +73,25 @@ var init = function (io) {
 		}
 	});
 
-	function initialAgentText(From, Body, user, room) {
+	function initialAgentText(From, Body, Agent, user, room) {
 		user.sendToAgent = true
 		user.save()
 		const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
-		const leesPhone = "9288216645";
-		const mikesPhone = "2086951457";
+		// const leesPhone = "9288216645";
+		// const mikesPhone = "2086951457";
 		const twilioPhone = '+12085041779';
 		client.messages.create({
 			body: `From: ${From}\nMessage: ${Body}\nAgent Chat: http://chat.roomr.io/chat/${room.id}\nTwilio Logs: https://www.twilio.com/console/studio/flows/FWafb5b1354d5ea598afba40a74c4548a5/executions"`,
 			from: twilioPhone,
-			to: mikesPhone
+			to: Agent
 		}).then(message => console.log(message));
 
 	}
 
 	// Twilio APIs
 	router.post('/lead', function (req, res, next) {
+		const leesPhone = "9288216645";
+		const mikesPhone = "2086951457";
 		const {
 			From,
 			Body,
@@ -149,7 +151,8 @@ var init = function (io) {
 					if (err) throw err;
 					if (room) {
 						if (sendToAgent) {
-							initialAgentText(From, Body, user, room);
+							initialAgentText(From, Body, mikesPhone, user, room);
+							initialAgentText(From, Body, leesPhone, user, room);
 							Message.create({
 								content: chatFlow,
 								dateCreated: Date.now(),
