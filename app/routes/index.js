@@ -183,7 +183,8 @@ var init = function (io) {
 							if (err) throw err;
 							io.of('/rooms').emit('updateRoomsList', room);
 							if (sendToAgent) {
-								initialAgentText(From, Body, user, room);
+								initialAgentText(From, Body, mikesPhone, user, room);
+								initialAgentText(From, Body, leesPhone, user, room);
 								Message.create({
 									content: chatFlow,
 									dateCreated: Date.now(),
