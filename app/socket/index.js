@@ -18,7 +18,6 @@ var ioEvents = function (io) {
 
 		// Create a new room
 		socket.on('createRoom', function (title, userId) {
-			console.log('title :', title);
 			Room.findOne({
 				'title': new RegExp('^' + title + '$', 'i')
 			}, function (err, room) {
@@ -30,7 +29,7 @@ var ioEvents = function (io) {
 				} else {
 					Room.create({
 						title: title,
-						userId: userId ? userId : null,
+						userId: userId ? userId : 1,
 					}, function (err, newRoom) {
 						if (err) throw err;
 						socket.emit('updateRoomsList', newRoom);
