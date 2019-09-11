@@ -73,6 +73,8 @@ var init = function (io) {
 		}
 	});
 
+	// Twilio APIs
+
 	function initialAgentText(From, Body, Agent, user, room) {
 		user.sendToAgent = true
 		user.save()
@@ -88,7 +90,21 @@ var init = function (io) {
 
 	}
 
-	// Twilio APIs
+	function sendText(To, Body) {
+		const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
+		const twilioPhone = '+18015152857';
+		client.messages.create({
+			body: Body,
+			from: twilioPhone,
+			to: To
+		}).then(message => console.log(message));
+	}
+
+	router.post('/sendethMeMineText', (req, res, next) => {
+		sendText(req.body.to, req.body.message)
+		res.status(200).end();
+	})
+
 	router.post('/lead', function (req, res, next) {
 		const leesPhone = "9288216645";
 		const mikesPhone = "2086951457";
